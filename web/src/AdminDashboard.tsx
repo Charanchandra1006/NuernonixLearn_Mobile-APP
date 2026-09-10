@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { Activity, Users, ShieldAlert, BookOpen } from 'lucide-react';
+import { getAdminDashboard, api } from './services/api';
 
 export default function AdminDashboard() {
   const [health, setHealth] = useState<string>("Checking...");
+  const [stats, setStats] = useState({ active_users: 0, high_risk_students: 0 });
 
   useEffect(() => {
-    axios.get('http://localhost:8000/health')
+    api.get('http://localhost:8000/health')
       .then(res => setHealth(res.data.status))
       .catch(() => setHealth("Down"));
+      
+    getAdminDashboard().then(data => setStats(data)).catch(console.error);
   }, []);
 
   return (
@@ -34,8 +37,8 @@ export default function AdminDashboard() {
             <h3>Active Users</h3>
             <Users color="var(--accent-primary)" />
           </div>
-          <h2>1,284</h2>
-          <span className="badge badge-success">+12% this week</span>
+          <h2>{stats.active_users}</h2>
+          <span className="badge badge-success">Live from Database</span>
         </div>
 
         <div className="glass-panel">
@@ -43,7 +46,7 @@ export default function AdminDashboard() {
             <h3>High Risk Students</h3>
             <ShieldAlert color="var(--warning)" />
           </div>
-          <h2>42</h2>
+          <h2>{stats.high_risk_students}</h2>
           <span className="badge badge-warning">Requires intervention</span>
         </div>
       </div>

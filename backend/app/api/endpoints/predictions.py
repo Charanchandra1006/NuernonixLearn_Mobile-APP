@@ -17,10 +17,18 @@ async def get_student_risk(
     """
     Fetches the risk prediction for the current logged-in student.
     """
-    # In a real app, query features (attendance, grades) from the DB
+from app.models.academic import AcademicRecord, Attendance
+
+    # Query real features from the database
+    records = db.query(AcademicRecord).filter(AcademicRecord.student_id == current_user.student_profile[0].id).all()
+    attendance_records = db.query(Attendance).filter(Attendance.student_id == current_user.student_profile[0].id).all()
+    
+    avg_score = sum([r.score for r in records]) / len(records) if records else 0
+    attendance_rate = sum([1 for a in attendance_records if a.is_present]) / len(attendance_records) if attendance_records else 0
+
     features = {
-        "attendance_rate": 0.85,
-        "average_score": 72.5
+        "attendance_rate": attendance_rate,
+        "average_score": avg_score
     }
     
     async with httpx.AsyncClient() as client:

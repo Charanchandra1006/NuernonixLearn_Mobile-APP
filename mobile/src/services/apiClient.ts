@@ -9,11 +9,12 @@ export const apiClient = axios.create({
   timeout: 10000,
 });
 
+import { useAuthStore } from '../store/authStore';
+
 // Request interceptor to attach JWT token
 apiClient.interceptors.request.use(
   (config) => {
-    // In a real app, retrieve token from secure storage / Zustand
-    const token = null; // useAuthStore.getState().token;
+    const token = useAuthStore.getState().token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

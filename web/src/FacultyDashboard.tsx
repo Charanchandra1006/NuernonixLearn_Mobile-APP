@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { User, AlertTriangle, BookOpen } from 'lucide-react';
+import { getFacultyStudents } from './services/api';
 
 export default function FacultyDashboard() {
-  const riskStudents = [
-    { id: 1, name: "Alice Johnson", score: "High", topic: "Calculus" },
-    { id: 2, name: "Bob Smith", score: "Medium", topic: "Linear Algebra" },
-    { id: 3, name: "Charlie Davis", score: "Medium", topic: "Statistics" },
-  ];
+  const [riskStudents, setRiskStudents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getFacultyStudents().then(data => {
+      setRiskStudents(data);
+    }).finally(() => setLoading(false));
+  }, []);
 
   return (
     <div className="main-content">
