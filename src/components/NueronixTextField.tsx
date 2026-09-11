@@ -1,93 +1,84 @@
 import React from 'react';
-import { View, TextInput, Text, StyleSheet, ViewStyle, TextInputProps } from 'react-native';
-import { theme } from '../theme/colors';
-import { typography } from '../theme/typography';
+import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from 'react-native';
+import { theme, colors } from '../theme/colors';
 
-interface NueronixTextFieldProps extends TextInputProps {
+interface NueronixTextFieldProps {
   label?: string;
+  placeholder?: string;
+  value?: string;
+  onChangeText?: (text: string) => void;
+  secureTextEntry?: boolean;
+  keyboardType?: any;
+  autoCapitalize?: any;
+  autoComplete?: any;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
   error?: string;
   containerStyle?: ViewStyle;
+  [key: string]: any;
 }
 
+import { TextInput } from 'react-native';
+
 export const NueronixTextField: React.FC<NueronixTextFieldProps> = ({
-  label,
-  error,
-  containerStyle,
-  style,
-  ...props
+  label, placeholder, value, onChangeText, secureTextEntry, keyboardType,
+  autoCapitalize, autoComplete, leftIcon, rightIcon, error, containerStyle, ...rest
 }) => {
-  const [isFocused, setIsFocused] = React.useState(false);
+  const [focused, setFocused] = React.useState(false);
 
   return (
     <View style={[styles.container, containerStyle]}>
       {label && (
-        <Text style={[
-          typography.body2, 
-          styles.label, 
-          isFocused && styles.labelFocused,
-          error && styles.labelError
-        ]}>
+        <Text style={[styles.label, focused && styles.labelFocused, error && styles.labelError]}>
           {label}
         </Text>
       )}
-      <TextInput
-        style={[
-          styles.input,
-          isFocused && styles.inputFocused,
-          error && styles.inputError,
-          style,
-        ]}
-        placeholderTextColor={theme.textSecondary}
-        onFocus={(e) => {
-          setIsFocused(true);
-          props.onFocus?.(e);
-        }}
-        onBlur={(e) => {
-          setIsFocused(false);
-          props.onBlur?.(e);
-        }}
-        {...props}
-      />
-      {error && <Text style={[typography.caption, styles.errorText]}>{error}</Text>}
+      <View style={[styles.inputRow, focused && styles.inputRowFocused, error && styles.inputRowError]}>
+        {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
+        <TextInput
+          style={[styles.input, leftIcon && styles.inputWithLeft, rightIcon && styles.inputWithRight]}
+          placeholder={placeholder}
+          placeholderTextColor={theme.textSecondary}
+          value={value}
+          onChangeText={onChangeText}
+          secureTextEntry={secureTextEntry}
+          keyboardType={keyboardType}
+          autoCapitalize={autoCapitalize}
+          autoComplete={autoComplete}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          {...rest}
+        />
+        {rightIcon && <View style={styles.iconRight}>{rightIcon}</View>}
+      </View>
+      {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    marginBottom: 16,
-    width: '100%',
-  },
+  container: { marginBottom: 16, width: '100%' },
   label: {
-    color: theme.textSecondary,
-    marginBottom: 6,
+    fontSize: 13, fontWeight: '500',
+    color: theme.textSecondary, marginBottom: 6,
   },
-  labelFocused: {
-    color: theme.primary,
-    fontWeight: '600',
-  },
-  labelError: {
-    color: theme.error,
-  },
-  input: {
+  labelFocused: { color: colors.primary, fontWeight: '600' },
+  labelError: { color: colors.error },
+  inputRow: {
+    flexDirection: 'row', alignItems: 'center',
     backgroundColor: theme.surface,
-    borderWidth: 1,
-    borderColor: theme.border,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    color: theme.text,
-    fontSize: 16,
+    borderWidth: 1, borderColor: theme.border,
+    borderRadius: 10, overflow: 'hidden',
   },
-  inputFocused: {
-    borderColor: theme.primary,
-    borderWidth: 2,
+  inputRowFocused: { borderColor: colors.primary, borderWidth: 2 },
+  inputRowError: { borderColor: colors.error },
+  iconLeft: { paddingLeft: 14, paddingRight: 4 },
+  iconRight: { paddingRight: 14, paddingLeft: 4 },
+  input: {
+    flex: 1, color: theme.text,
+    fontSize: 15, paddingVertical: 13, paddingHorizontal: 14,
   },
-  inputError: {
-    borderColor: theme.error,
-  },
-  errorText: {
-    color: theme.error,
-    marginTop: 4,
-  },
+  inputWithLeft: { paddingLeft: 4 },
+  inputWithRight: { paddingRight: 4 },
+  errorText: { color: colors.error, fontSize: 12, marginTop: 4 },
 });
