@@ -1,0 +1,7 @@
+{
+  "name": "LearnSense",
+  "description": "AI-Driven Personalized Learning and Academic Performance Prediction System with early risk alerts, topic mastery modeling, adaptive quizzes, and intelligent tutoring.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

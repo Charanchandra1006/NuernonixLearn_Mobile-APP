@@ -1,105 +1,22 @@
-# LearnSense: AI-Powered Academic Platform
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
 
-LearnSense is an advanced academic platform designed to identify struggling students early using machine learning, and provide them with personalized, adaptive learning interventions via Generative AI. 
+# Run and deploy your AI Studio app
 
-## 🏗️ Architecture
+This contains everything you need to run your app locally.
 
-The project is structured as a monorepo containing four distinct components:
+View your app in AI Studio: https://ai.studio/apps/8261bfd7-f8de-440e-9169-c527fcc7cfb0
 
-1. **Backend (`/backend`)**: The core API gateway and business logic.
-   - **Framework**: Python + FastAPI
-   - **Database**: PostgreSQL (managed via SQLAlchemy & Alembic)
-   - **Features**: JWT Authentication, RBAC (Student/Faculty/Admin), PII Masking, Core CRUD.
+## Run Locally
 
-2. **ML Service (`/ml-service`)**: A decoupled microservice dedicated strictly to Machine Learning and GenAI processing.
-   - **Framework**: Python + FastAPI
-   - **ML Stack**: Scikit-Learn, XGBoost, Pandas
-   - **Features**: High-speed (<2s SLA) Risk Predictions, Provider-agnostic Generative AI wrapping.
+**Prerequisites:**  [Android Studio](https://developer.android.com/studio)
 
-3. **Mobile App (`/mobile`)**: The student-facing native application (Android).
-   - **Framework**: React Native + Expo Router
-   - **State**: Zustand
-   - **Features**: Dashboard, Risk visualizations, GenAI Tutor interface.
 
-4. **Web Portal (`/web`)**: The desktop interface for Faculty and System Administrators.
-   - **Framework**: React + Vite + TypeScript
-   - **Styling**: Custom Vanilla CSS Design System (Glassmorphism, Dark mode)
-   - **Features**: System Health Monitoring, Student Risk Tables, Intervention Management.
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js (v18+)
-- Python (3.9+)
-- Docker & Docker Compose
-- PostgreSQL (or use the provided Docker container)
-
-### 1. Database & Infrastructure
-The system uses Docker to run the PostgreSQL database locally.
-```bash
-# From the root directory
-docker-compose up -d postgres
-```
-
-### 2. Backend API
-Set up the core FastAPI application.
-```bash
-cd backend
-python -m venv venv
-# Windows: .\venv\Scripts\Activate.ps1
-# Mac/Linux: source venv/bin/activate
-pip install -r requirements.txt
-
-# Run initial migrations
-alembic upgrade head
-
-# Start the server (runs on http://localhost:8000)
-uvicorn app.main:app --reload --port 8000
-```
-
-### 3. ML Service
-Set up the AI microservice.
-```bash
-cd ml-service
-python -m venv venv
-# Windows: .\venv\Scripts\Activate.ps1
-# Mac/Linux: source venv/bin/activate
-pip install -r requirements.txt
-
-# Start the server (runs on http://localhost:8001)
-uvicorn app.main:app --reload --port 8001
-```
-
-### 4. Mobile App (Student)
-Set up the Expo React Native app.
-```bash
-cd mobile
-npm install
-
-# Start the Expo bundler
-npm run start
-```
-
-### 5. Web Portal (Faculty/Admin)
-Set up the Vite React application.
-```bash
-cd web
-npm install
-
-# Start the dev server
-npm run dev
-```
-
----
-
-## 🔐 Security & Privacy
-
-Privacy is a core pillar of LearnSense. 
-- **PII Encryption**: Personally Identifiable Information (PII) is masked and securely encrypted at the database level using `sqlalchemy-utils` EncryptedType.
-- **RBAC**: Strict Role-Based Access Control ensures that faculty can only see their students, and students cannot access broader risk datasets.
-- **Decoupled AI**: ML and AI operations are isolated into a separate microservice so that heavy model inference never blocks core API operations. 
-
-## 📜 License
-Internal University Project.
+1. Open Android Studio
+2. Select **Open** and choose the directory containing this project
+3. Allow Android Studio to fix any incompatibilities as it imports the project.
+4. Create a file named `.env` in the project directory and set `GEMINI_API_KEY` in that file to your Gemini API key (see `.env.example` for an example)
+5. Remove this line from the app's `build.gradle.kts` file: `signingConfig = signingConfigs.getByName("debugConfig")`
+6. Run the app on an emulator or physical device
+7. If you have already published your app in AI Studio, please [request upload key reset](https://support.google.com/googleplay/android-developer/answer/9842756#zippy=%2Crequest-an-upload-key-reset) in Google Play Console.
