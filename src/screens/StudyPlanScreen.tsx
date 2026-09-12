@@ -8,6 +8,7 @@ import { NueronixCard } from '../components/NueronixCard';
 import { NueronixButton } from '../components/NueronixButton';
 import { theme, colors } from '../theme/colors';
 import { topicsAPI } from '../services/api';
+import { WeakTopicsView } from '../components/WeakTopicsView';
 
 const POPULAR_SUBJECTS = [
   'JavaScript', 'Python', 'Machine Learning', 'Data Structures',
@@ -38,6 +39,7 @@ export const StudyPlanScreen = ({ navigation }: any) => {
   const [addError, setAddError] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'topics' | 'subtopics' | 'resources'>('topics');
+  const [viewMode, setViewMode] = useState<'roadmap' | 'weak_topics'>('roadmap');
 
   // Progress
   const doneTopics = topics.filter(t => t.completed).length;
@@ -189,10 +191,22 @@ export const StudyPlanScreen = ({ navigation }: any) => {
       {/* Header */}
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.title}>Study Plan</Text>
-          <Text style={styles.subtitle}>AI-generated roadmaps</Text>
-          {selectedSubject && topics.length > 0 && (
-            <View style={styles.progressRow}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View>
+              <Text style={styles.title}>Study Plan</Text>
+              <Text style={styles.subtitle}>AI-generated roadmaps</Text>
+            </View>
+            <View style={styles.modeSwitcher}>
+              <TouchableOpacity style={[styles.modeTab, viewMode === 'roadmap' && styles.modeTabActive]} onPress={() => setViewMode('roadmap')}>
+                <Text style={[styles.modeTabText, viewMode === 'roadmap' && styles.modeTabTextActive]}>Roadmap</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.modeTab, viewMode === 'weak_topics' && styles.modeTabActive]} onPress={() => setViewMode('weak_topics')}>
+                <Text style={[styles.modeTabText, viewMode === 'weak_topics' && styles.modeTabTextActive]}>Weak Topics</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          {viewMode === 'roadmap' && selectedSubject && topics.length > 0 && (
+            <View style={[styles.progressRow, { marginTop: 12 }]}>
               <View style={styles.progressTrack}>
                 <View style={[styles.progressFill, { width: `${topicPct}%` }]} />
               </View>
@@ -201,14 +215,14 @@ export const StudyPlanScreen = ({ navigation }: any) => {
             </View>
           )}
         </View>
-        <TouchableOpacity style={styles.addBtn} onPress={() => setAddModalOpen(true)} activeOpacity={0.8}>
-          <Ionicons name="add" size={20} color="#000" />
-          <Text style={styles.addBtnText}>Add</Text>
-        </TouchableOpacity>
       </View>
 
-      {/* Subject tabs */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.subjectScroll} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}>
+      {viewMode === 'weak_topics' ? (
+        <WeakTopicsView />
+      ) : (
+        <>
+          {/* Subject tabs */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.subjectScroll} contentContainerStyle={{ paddingHorizontal: 16, gap: 8, paddingVertical: 12 }}>
         {subjects.map(sub => (
           <View key={sub._id} style={styles.subjectTabWrap}>
             <TouchableOpacity
@@ -452,6 +466,8 @@ export const StudyPlanScreen = ({ navigation }: any) => {
           </View>
         </View>
       </Modal>
+        </>
+      )}
     </SafeAreaView>
   );
 };
@@ -465,7 +481,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1, borderBottomColor: theme.border,
   },
   title: { fontSize: 24, fontWeight: '700', color: theme.text, letterSpacing: -0.5 },
-  subtitle: { fontSize: 13, color: theme.textSecondary, marginTop: 2, marginBottom: 8 },
+  subtitle: { fontSize: 13, color: theme.textSecondary, marginTop: 2 },
+  modeSwitcher: { flexDirection: 'row', backgroundColor: '#111', borderRadius: 8, padding: 3 },
+  modeTab: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 },
+  modeTabActive: { backgroundColor: '#333' },
+  modeTabText: { fontSize: 11, color: theme.textSecondary, fontWeight: '500' },
+  modeTabTextActive: { color: theme.text, fontWeight: '700' },
   progressRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   progressTrack: { flex: 1, height: 3, backgroundColor: '#1a1a1a', borderRadius: 2 },
   progressFill: { height: 3, backgroundColor: colors.primary, borderRadius: 2 },

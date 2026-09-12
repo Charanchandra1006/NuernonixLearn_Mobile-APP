@@ -128,6 +128,10 @@ export const mlAPI = {
   submitFeedback: (data: { feedback: string; type: string; courseId?: string }) =>
     api.post('/ml/feedback', data),
   getIntent: () => api.get('/ml/intent'),
+  uploadPDF: (formData: FormData) => api.post('/ml/upload-pdf', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  updateCognitiveLoad: (data: { courseId: string; metrics: any }) => api.post('/ml/cognitive-load', data),
 };
 
 // ─── AI (Gemini) ──────────────────────────────────────────────────────────────
