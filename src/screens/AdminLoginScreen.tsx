@@ -8,13 +8,13 @@ import { NueronixCard } from '../components/NueronixCard';
 import { NueronixButton } from '../components/NueronixButton';
 import { theme, colors } from '../theme/colors';
 import { adminAPI } from '../services/api';
-import useAuthStore from '../store/authStore';
+import { useAuthStore } from '../store/authStore';
 
 export const AdminLoginScreen = ({ navigation }: any) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { setUser } = useAuthStore();
+  const { updateUser } = useAuthStore();
 
   const handleLogin = async () => {
     if (!username || !password) return;
@@ -24,12 +24,11 @@ export const AdminLoginScreen = ({ navigation }: any) => {
       // For mobile, we just set the admin user to the main auth store
       // The API response contains token and admin object
       // We simulate merging into the main store
-      setUser({
+      updateUser({
         _id: res.data.admin._id,
         name: res.data.admin.username,
         email: res.data.admin.email,
         role: 'admin',
-        isSuperAdmin: res.data.admin.isSuperAdmin,
       });
       navigation.replace('AdminPanel');
     } catch (err: any) {

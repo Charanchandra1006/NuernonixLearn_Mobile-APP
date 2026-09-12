@@ -52,7 +52,8 @@ export const RegisterScreen = ({ navigation }: any) => {
       if (role === 'teacher') navigation.replace('TeacherApp');
       else navigation.replace('Onboarding');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Registration failed. Please try again.');
+      console.error('Registration Catch Error:', err.message, err.response?.data);
+      setError(err.response?.data?.error || err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }

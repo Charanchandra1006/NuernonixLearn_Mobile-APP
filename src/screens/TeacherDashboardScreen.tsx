@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { NueronixCard } from '../components/NueronixCard';
 import { theme, colors } from '../theme/colors';
 import { coursesAPI, authAPI } from '../services/api';
-import useAuthStore from '../store/authStore';
+import { useAuthStore } from '../store/authStore';
 
 export const TeacherDashboardScreen = ({ navigation }: any) => {
   const { user } = useAuthStore();

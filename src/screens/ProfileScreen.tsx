@@ -8,10 +8,10 @@ import { NueronixCard } from '../components/NueronixCard';
 import { NueronixButton } from '../components/NueronixButton';
 import { theme, colors } from '../theme/colors';
 import { authAPI, analyticsAPI } from '../services/api';
-import useAuthStore from '../store/authStore';
+import { useAuthStore } from '../store/authStore';
 
 export const ProfileScreen = () => {
-  const { user, setUser } = useAuthStore();
+  const { user, updateUser } = useAuthStore();
   const [stats, setStats] = useState<any>(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [name, setName] = useState(user?.name || '');
@@ -28,7 +28,7 @@ export const ProfileScreen = () => {
     setSaving(true);
     try {
       await authAPI.updateProfile({ name });
-      if (user) setUser({ ...user, name });
+      if (user) updateUser({ ...user, name });
       Alert.alert('Success', 'Profile saved successfully.');
     } catch (err: any) {
       Alert.alert('Error', err.response?.data?.error || 'Failed to save');

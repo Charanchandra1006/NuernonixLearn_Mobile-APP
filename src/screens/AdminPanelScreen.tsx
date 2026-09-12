@@ -8,7 +8,7 @@ import { NueronixCard } from '../components/NueronixCard';
 import { NueronixButton } from '../components/NueronixButton';
 import { theme, colors } from '../theme/colors';
 import { adminAPI } from '../services/api';
-import useAuthStore from '../store/authStore';
+import { useAuthStore } from '../store/authStore';
 
 export const AdminPanelScreen = ({ navigation }: any) => {
   const { user } = useAuthStore();
