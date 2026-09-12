@@ -176,6 +176,31 @@ export const DashboardScreen = ({ navigation }: any) => {
           </NueronixCard>
         )}
 
+        {/* AI Recommendations */}
+        {recs.length > 0 && (
+          <NueronixCard style={styles.card}>
+            <Text style={[styles.cardEyebrow, { color: '#ce93d8' }]}>SUGGESTED</Text>
+            <Text style={styles.cardTitle}>Recommended Courses</Text>
+            {recs.slice(0, 3).map((item: any, i: number) => (
+              <TouchableOpacity
+                key={i}
+                style={[styles.activityRow, i < 2 && styles.activityBorder]}
+                onPress={() => navigation.navigate('CourseDetail', { courseId: item.courseId || item._id })}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.activityIcon, { backgroundColor: '#ce93d812' }]}>
+                  <Ionicons name="bulb-outline" size={14} color="#ce93d8" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.activityName} numberOfLines={1}>{item.title || item.courseName || 'Course'}</Text>
+                  {item.reason && <Text style={{ fontSize: 11, color: theme.textSecondary }} numberOfLines={1}>{item.reason}</Text>}
+                </View>
+                <Ionicons name="chevron-forward" size={14} color="#555" />
+              </TouchableOpacity>
+            ))}
+          </NueronixCard>
+        )}
+
         {/* Recent Activity */}
         <NueronixCard style={styles.card}>
           <Text style={styles.cardEyebrow}>CONTINUE</Text>
