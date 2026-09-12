@@ -2,8 +2,8 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // ─── Base URL ─────────────────────────────────────────────────────────────────
-// In development use the local backend, in production use env variable
-const BASE_URL = 'https://nueronixlearn-bn.vercel.app/api';
+// In development use the local backend (10.0.2.2 is localhost for Android Emulator)
+const BASE_URL = 'http://10.0.2.2:5050/api';
 
 // ─── Axios instance ───────────────────────────────────────────────────────────
 const api = axios.create({
