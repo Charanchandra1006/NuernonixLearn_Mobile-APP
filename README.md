@@ -1,35 +1,53 @@
+# NueronixLearn Mobile App
 
-# LearnSense
+NueronixLearn is an **AI-Powered Adaptive Learning Platform**. This mobile application provides a seamless, dynamic learning experience tailored for students, and comprehensive course management tools for teachers and administrators.
 
-LearnSense is an **AI-Driven Personalized Learning and Academic Performance Prediction System**. It provides early risk alerts, topic mastery modeling, adaptive quizzes, and intelligent tutoring, all packaged as a native Android application powered by Google's Gemini API.
+The mobile app is built with **React Native** and **Expo**, utilizing a shared central backend to ensure perfect data consistency across all platforms.
 
-## Features
+## Key Features
 
-- **Unified State Management**: Manages all user data (Student, Faculty, Admin roles) locally via Room databases and Kotlin Coroutines/StateFlow.
-- **Adaptive Quiz Engine**: Quizzes automatically scale difficulty based on student performance. Features a **Circuit Breaker** that halts the quiz and provides an educational concept review if a student misses 3 consecutive questions.
-- **AI Study Assistant**: Uses the **Gemini API** directly on-device. The assistant dynamically reads the student's live risk scores and weak topics to generate highly personalized step-by-step tutoring.
-- **Academic Dashboards**: Real-time insights into attendance, grades, and topic mastery.
+- **Personalized Dashboards**: Distinct, data-rich interfaces for Students, Teachers, and Administrators.
+- **Adaptive Study Plans**: AI-generated roadmaps that dynamically adjust based on your performance, cognitive load, and mastery.
+- **Intelligent Chatbot**: Context-aware AI assistant that can provide instant explanations and clear conversation history.
+- **Interactive Quizzes & Exams**: Real-time evaluation, tracking, and adaptive quiz generation.
+- **Video Generation & AI Media**: Interactive learning paths driven by dynamically generated video content.
+- **Cognitive Load Tracking**: Real-time monitoring of learning fatigue to optimize study efficiency.
+- **Course & Exam Creation**: Fully integrated tools for teachers to create content, upload assets (via Expo Document Picker), and publish directly from their phone.
 
-## Getting Started
+## Tech Stack
 
-**Prerequisites:** [Android Studio](https://developer.android.com/studio)
+- **Framework**: React Native & Expo
+- **Navigation**: React Navigation (Native Stack, Bottom Tabs)
+- **State Management**: Zustand
+- **Networking**: Axios
+- **Styling**: Custom Theme/Colors System
 
-### 1. Setup the Project
-1. Open Android Studio.
-2. Select **Open** and choose the root directory containing this project (`learnsense`).
-3. Allow Android Studio to sync Gradle and fix any incompatibilities.
+## Setup and Installation
 
-### 2. Configure Gemini API
-1. Create a file named `.env` in the root project directory.
-2. Set your Gemini API key in that file:
-   ```env
-   GEMINI_API_KEY=your_actual_api_key_here
+### 1. Prerequisites
+- Node.js (v18+)
+- [Expo CLI](https://docs.expo.dev/get-started/installation/)
+- Android Emulator / iOS Simulator, or the Expo Go app on a physical device.
+
+### 2. Backend Configuration
+The mobile app requires the NueronixLearn backend to be running.
+By default, the app is configured to point to the local backend during development.
+
+To change the API URL (e.g. for production or a different local port), update the `BASE_URL` in `src/services/api.ts`:
+```typescript
+// Example for Android Emulator hitting a local backend on port 5050
+const BASE_URL = 'http://10.0.2.2:5050/api';
+```
+
+*(Note: Do NOT place database credentials in this repository. All database and API keys are securely managed by the backend server).*
+
+### 3. Running the App
+1. Install dependencies:
+   ```bash
+   npm install
    ```
-   *(See `.env.example` for reference)*
-
-### 3. Run the App
-1. Build the project.
-2. Run the app on an Android Emulator or physical device.
-
----
-*Built with Jetpack Compose & Google Gemini*
+2. Start the Expo development server:
+   ```bash
+   npx expo start
+   ```
+3. Press `a` to open in Android Emulator, `i` for iOS Simulator, or scan the QR code with your Expo Go app.
