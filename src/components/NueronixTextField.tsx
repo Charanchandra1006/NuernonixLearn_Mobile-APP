@@ -36,7 +36,7 @@ export const NueronixTextField: React.FC<NueronixTextFieldProps> = ({
       <View style={[styles.inputRow, focused && styles.inputRowFocused, error && styles.inputRowError]}>
         {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
         <TextInput
-          style={[styles.input, leftIcon && styles.inputWithLeft, rightIcon && styles.inputWithRight]}
+          style={[styles.input, leftIcon ? styles.inputWithLeft : null, rightIcon ? styles.inputWithRight : null]}
           placeholder={placeholder}
           placeholderTextColor={theme.textSecondary}
           value={value}

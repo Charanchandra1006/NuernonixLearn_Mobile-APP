@@ -179,6 +179,7 @@ export const CoursesScreen = ({ navigation }: any) => {
             <Text style={styles.clearBtnText}>Clear filters</Text>
           </TouchableOpacity>
         </View>
+      ) : (
         <FlatList
           data={courses}
           keyExtractor={item => item._id}

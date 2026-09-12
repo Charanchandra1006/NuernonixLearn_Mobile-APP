@@ -37,7 +37,7 @@ const chartStyles = StyleSheet.create({
 
 // ─── Stat card ────────────────────────────────────────────────────────────────
 const StatCard = ({ icon, label, value, color }: any) => (
-  <NueronixCard style={[statStyles.card]}>
+  <NueronixCard style={statStyles.card}>
     <View style={statStyles.iconRow}>
       <View style={[statStyles.iconBox, { backgroundColor: `${color}18` }]}>
         <Ionicons name={icon} size={18} color={color} />

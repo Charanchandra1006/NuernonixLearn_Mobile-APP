@@ -167,14 +167,14 @@ export const CreateExamScreen = ({ navigation }: any) => {
                   key={opt}
                   style={styles.selectOption}
                   onPress={() => {
-                    handleChange(selectModal as string, opt);
+                    handleChange(selectModal as keyof typeof formData, opt);
                     setSelectModal(null);
                   }}
                 >
-                  <Text style={[styles.selectOptionText, formData[selectModal as string] === opt && { color: colors.primary, fontWeight: '700' }]}>
+                  <Text style={[styles.selectOptionText, formData[selectModal as keyof typeof formData] === opt && { color: colors.primary, fontWeight: '700' }]}>
                     {opt}
                   </Text>
-                  {formData[selectModal as string] === opt && <Ionicons name="checkmark" size={20} color={colors.primary} />}
+                  {formData[selectModal as keyof typeof formData] === opt && <Ionicons name="checkmark" size={20} color={colors.primary} />}
                 </TouchableOpacity>
               ))}
             </ScrollView>

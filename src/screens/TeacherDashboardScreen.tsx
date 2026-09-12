@@ -6,7 +6,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { NueronixCard } from '../components/NueronixCard';
 import { theme, colors } from '../theme/colors';
-import { coursesAPI, authAPI } from '../services/api';
+import api from '../services/api';
 import { useAuthStore } from '../store/authStore';
 
 export const TeacherDashboardScreen = ({ navigation }: any) => {
@@ -17,8 +17,8 @@ export const TeacherDashboardScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     Promise.all([
-      coursesAPI.get('/courses/teacher'),
-      authAPI.get('/auth/me')
+      api.get('/courses/teacher'),
+      api.get('/auth/me')
     ]).then(([coursesRes, userRes]) => {
       setCourses(coursesRes.data.courses || []);
       const tp = userRes.data.user?.teacherProfile || {};
