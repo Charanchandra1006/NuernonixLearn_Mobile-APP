@@ -155,7 +155,7 @@ export const ChatbotScreen = ({ navigation }: any) => {
             value={message}
             onChangeText={setMessage}
             multiline
-            maxLines={4}
+            numberOfLines={4}
           />
           <TouchableOpacity style={[styles.sendBtn, !message.trim() && { opacity: 0.5 }]} onPress={handleSend} disabled={!message.trim() || loading}>
             <Ionicons name="send" size={18} color="#000" />

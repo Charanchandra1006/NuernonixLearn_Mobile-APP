@@ -47,7 +47,7 @@ export const DiaryScreen = ({ navigation }: any) => {
 
   const fetchLockStatus = async () => {
     try {
-      const res = await diaryAPI.get('/diary/status');
+      const res = await diaryAPI.getStatus();
       setHasPassword(res.data.hasPassword);
       setIsLocked(res.data.hasPassword);
     } catch {
@@ -57,7 +57,7 @@ export const DiaryScreen = ({ navigation }: any) => {
 
   const fetchEntries = async () => {
     try {
-      const res = await diaryAPI.get('/diary/entries');
+      const res = await diaryAPI.getEntries();
       setEntries(res.data.entries || []);
     } catch { /* silent */ }
   };
@@ -65,7 +65,7 @@ export const DiaryScreen = ({ navigation }: any) => {
   const handleUnlock = async () => {
     setUnlockError('');
     try {
-      const res = await diaryAPI.post('/diary/unlock', { password });
+      const res = await diaryAPI.unlock(password);
       if (res.data.unlocked) {
         setIsLocked(false);
         setAuthModal(false);
@@ -80,7 +80,7 @@ export const DiaryScreen = ({ navigation }: any) => {
   const handleCreatePassword = async () => {
     if (password.length < 4) { setUnlockError('Minimum 4 characters required'); return; }
     try {
-      await diaryAPI.post('/diary/lock', { password });
+      await diaryAPI.lock(password);
       setHasPassword(true);
       setAuthMode('unlock');
       setUnlockError('');
@@ -121,8 +121,8 @@ export const DiaryScreen = ({ navigation }: any) => {
         reflections: formData.reflections
       };
 
-      if (selectedEntry) await diaryAPI.put(`/diary/entries/${selectedEntry._id}`, data);
-      else await diaryAPI.post('/diary/entries', data);
+      if (selectedEntry) await diaryAPI.updateEntry(selectedEntry._id, data);
+      else await diaryAPI.createEntry(data);
 
       setEntryModal(false);
       fetchEntries();
@@ -131,7 +131,7 @@ export const DiaryScreen = ({ navigation }: any) => {
 
   const deleteEntry = async (id: string) => {
     try {
-      await diaryAPI.delete(`/diary/entries/${id}`);
+      await diaryAPI.deleteEntry(id);
       fetchEntries();
     } catch { /* silent */ }
   };

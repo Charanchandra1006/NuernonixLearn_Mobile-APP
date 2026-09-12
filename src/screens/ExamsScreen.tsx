@@ -6,7 +6,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { NueronixCard } from '../components/NueronixCard';
 import { theme, colors } from '../theme/colors';
-import { diaryAPI } from '../services/api';
+import { examsAPI } from '../services/api';
 
 const MOODS = [
   { value: 'great', icon: '😁', color: '#10b981' },
@@ -21,7 +21,7 @@ export const ExamsScreen = ({ navigation }: any) => {
   const [exams, setExams] = useState<any[]>([]);
 
   useEffect(() => {
-    diaryAPI.get('/exams').then(res => {
+    examsAPI.getAll().then(res => {
       setExams(res.data.exams || []);
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);

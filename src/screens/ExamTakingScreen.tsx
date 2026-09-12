@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { NueronixCard } from '../components/NueronixCard';
 import { NueronixButton } from '../components/NueronixButton';
 import { theme, colors } from '../theme/colors';
-import { diaryAPI } from '../services/api';
+import { examsAPI } from '../services/api';
 
 export const ExamTakingScreen = ({ navigation, route }: any) => {
   const { examId } = route.params;
@@ -20,7 +20,7 @@ export const ExamTakingScreen = ({ navigation, route }: any) => {
   const [result, setResult] = useState<any>(null);
 
   useEffect(() => {
-    diaryAPI.post(`/exams/${examId}/start`).then(res => {
+    examsAPI.start(examId).then(res => {
       setExamData(res.data);
       setTimeLeft(res.data.timeLimit * 60);
     }).catch(() => {}).finally(() => setLoading(false));
@@ -44,7 +44,7 @@ export const ExamTakingScreen = ({ navigation, route }: any) => {
   const handleSubmit = async () => {
     try {
       const formattedAnswers = Object.entries(answers).map(([questionId, answer]) => ({ questionId, answer }));
-      const res = await diaryAPI.post(`/exams/${examId}/submit`, {
+      const res = await examsAPI.submit(examId, {
         answers: formattedAnswers,
         timeSpent: (examData.timeLimit * 60) - timeLeft
       });
