@@ -40,10 +40,22 @@ export const ChatbotScreen = ({ navigation }: any) => {
     } catch { /* silent */ }
   };
 
-  const handleSend = async () => {
-    if (!message.trim() || loading) return;
-    const userMessage = message.trim();
-    setMessage('');
+  const handleClearContext = async () => {
+    try {
+      await chatbotAPI.clearContext();
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: 'Context cleared. What would you like to talk about next?',
+        timestamp: new Date()
+      }]);
+    } catch { /* silent */ }
+  };
+
+  const handleSend = async (customMessage?: string) => {
+    const textToSend = customMessage || message;
+    if (!textToSend.trim() || loading) return;
+    const userMessage = textToSend.trim();
+    if (!customMessage) setMessage('');
     setMessages(prev => [...prev, { role: 'user', content: userMessage, timestamp: new Date() }]);
     setLoading(true);
 
@@ -86,10 +98,15 @@ export const ChatbotScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <View style={styles.avatar}>
-          <Ionicons name="hardware-chip" size={20} color="#fff" />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View style={styles.avatar}>
+            <Ionicons name="hardware-chip" size={20} color="#fff" />
+          </View>
+          <Text style={styles.title}>NeuroBot</Text>
         </View>
-        <Text style={styles.title}>NeuroBot</Text>
+        <TouchableOpacity onPress={handleClearContext}>
+          <Ionicons name="trash-outline" size={20} color={theme.textSecondary} />
+        </TouchableOpacity>
       </View>
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
@@ -99,7 +116,11 @@ export const ChatbotScreen = ({ navigation }: any) => {
           showsVerticalScrollIndicator={false}
         >
           {suggestion && (
-            <View style={styles.suggestionCard}>
+            <TouchableOpacity 
+              style={styles.suggestionCard} 
+              activeOpacity={0.8}
+              onPress={() => handleSend(suggestion.suggestion)}
+            >
               <View style={styles.sugHeader}>
                 <Ionicons name="sparkles" size={16} color={colors.primary} />
                 <Text style={styles.sugTitle}>Learning Suggestion</Text>
@@ -111,7 +132,7 @@ export const ChatbotScreen = ({ navigation }: any) => {
               </View>
               <Text style={styles.sugText}>{suggestion.suggestion}</Text>
               <Text style={styles.sugReason}>{suggestion.reason}</Text>
-            </View>
+            </TouchableOpacity>
           )}
 
           {messages.map((msg, idx) => {
@@ -157,7 +178,7 @@ export const ChatbotScreen = ({ navigation }: any) => {
             multiline
             numberOfLines={4}
           />
-          <TouchableOpacity style={[styles.sendBtn, !message.trim() && { opacity: 0.5 }]} onPress={handleSend} disabled={!message.trim() || loading}>
+          <TouchableOpacity style={[styles.sendBtn, !message.trim() && { opacity: 0.5 }]} onPress={() => handleSend()} disabled={!message.trim() || loading}>
             <Ionicons name="send" size={18} color="#000" />
           </TouchableOpacity>
         </View>
@@ -168,7 +189,7 @@ export const ChatbotScreen = ({ navigation }: any) => {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: theme.background },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderBottomWidth: 1, borderBottomColor: theme.border },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: theme.border },
   avatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   title: { fontSize: 20, fontWeight: '700', color: theme.text },
   scrollContent: { padding: 16, paddingBottom: 24 },

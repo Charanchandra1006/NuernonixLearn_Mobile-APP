@@ -60,6 +60,8 @@ export const CoursesScreen = ({ navigation }: any) => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [featured, setFeatured] = useState<any[]>([]);
+  const [loadingFeatured, setLoadingFeatured] = useState(true);
 
   const fetchCourses = useCallback(async (reset = false) => {
     const pg = reset ? 1 : page;
@@ -82,7 +84,12 @@ export const CoursesScreen = ({ navigation }: any) => {
     }
   }, [search, category, difficulty, page]);
 
-  useEffect(() => { fetchCourses(true); }, [search, category, difficulty]);
+  useEffect(() => {
+    fetchCourses(true);
+    coursesAPI.getFeatured().then(res => {
+      setFeatured(res.data.courses || []);
+    }).catch(() => {}).finally(() => setLoadingFeatured(false));
+  }, [search, category, difficulty]);
 
   const handleLoadMore = () => {
     if (page < totalPages && !loadingMore) {
@@ -172,12 +179,35 @@ export const CoursesScreen = ({ navigation }: any) => {
             <Text style={styles.clearBtnText}>Clear filters</Text>
           </TouchableOpacity>
         </View>
-      ) : (
         <FlatList
           data={courses}
           keyExtractor={item => item._id}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          ListHeaderComponent={
+            featured.length > 0 && !search && !category && !difficulty ? (
+              <View style={{ marginBottom: 24 }}>
+                <Text style={styles.featuredTitle}>Featured Courses</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
+                  {featured.map(course => (
+                    <TouchableOpacity key={course._id} style={styles.featuredCard} onPress={() => navigation.navigate('CourseDetail', { courseId: course._id, course })} activeOpacity={0.85}>
+                      <View style={styles.featuredThumb}>
+                        <Text style={styles.courseLetter}>{course.title?.charAt(0) || 'C'}</Text>
+                        <View style={[styles.diffBadge, { backgroundColor: `${DIFF_COLORS[course.difficulty] || '#888'}22`, borderColor: `${DIFF_COLORS[course.difficulty] || '#888'}55` }]}>
+                          <Text style={[styles.diffText, { color: DIFF_COLORS[course.difficulty] || '#888' }]}>{course.difficulty}</Text>
+                        </View>
+                      </View>
+                      <View style={styles.featuredBody}>
+                        <Text style={styles.courseTitle} numberOfLines={1}>{course.title}</Text>
+                        <Text style={styles.courseMeta}>{course.modules?.length || 0} modules</Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+                <Text style={[styles.featuredTitle, { marginTop: 20 }]}>All Courses</Text>
+              </View>
+            ) : null
+          }
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={loadingMore ? <ActivityIndicator color={colors.primary} style={{ marginVertical: 16 }} /> : null}
@@ -275,4 +305,8 @@ const styles = StyleSheet.create({
     borderRadius: 8, paddingVertical: 9,
   },
   viewBtnText: { color: colors.primary, fontSize: 13, fontWeight: '600' },
+  featuredTitle: { fontSize: 18, fontWeight: '700', color: theme.text, marginBottom: 12 },
+  featuredCard: { width: 240, backgroundColor: theme.surface, borderRadius: 12, borderWidth: 1, borderColor: theme.border, overflow: 'hidden' },
+  featuredThumb: { height: 90, backgroundColor: '#0d0d0d', borderBottomWidth: 1, borderBottomColor: theme.border, alignItems: 'center', justifyContent: 'center' },
+  featuredBody: { padding: 12 },
 });

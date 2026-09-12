@@ -19,6 +19,11 @@ export const CreateCourseScreen = ({ navigation }: any) => {
   const [editModule, setEditModule] = useState<any>(null);
   const [expandedModule, setExpandedModule] = useState<number | null>(null);
 
+  const [selectModal, setSelectModal] = useState<'category' | 'difficulty' | null>(null);
+
+  const CATEGORIES = ['Programming', 'Data Science', 'Web Development', 'Machine Learning', 'Mathematics', 'Science'];
+  const DIFFICULTIES = ['beginner', 'intermediate', 'advanced'];
+
   const handleChange = (field: string, value: any) => setFormData(p => ({ ...p, [field]: value }));
 
   const handleArrayChange = (field: 'whatYouWillLearn' | 'requirements', idx: number, val: string) => {
@@ -88,6 +93,15 @@ export const CreateCourseScreen = ({ navigation }: any) => {
         <TextInput style={styles.input} placeholder="Course Title *" placeholderTextColor={theme.textSecondary} value={formData.title} onChangeText={v => handleChange('title', v)} />
         <TextInput style={[styles.input, { height: 100, textAlignVertical: 'top' }]} placeholder="Full Description *" placeholderTextColor={theme.textSecondary} multiline value={formData.description} onChangeText={v => handleChange('description', v)} />
         
+        <View style={styles.row}>
+          <TouchableOpacity style={[styles.input, { flex: 1, marginRight: 8, justifyContent: 'center' }]} onPress={() => setSelectModal('category')}>
+            <Text style={{ color: formData.category ? theme.text : theme.textSecondary }}>{formData.category || 'Category *'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.input, { flex: 1, justifyContent: 'center' }]} onPress={() => setSelectModal('difficulty')}>
+            <Text style={{ color: formData.difficulty ? theme.text : theme.textSecondary, textTransform: 'capitalize' }}>{formData.difficulty || 'Difficulty *'}</Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.row}>
           <View style={styles.switchRow}>
             <Switch value={formData.isFree} onValueChange={v => handleChange('isFree', v)} thumbColor={formData.isFree ? colors.primary : '#f4f3f4'} trackColor={{ false: '#3e3e3e', true: `${colors.primary}55` }} />
@@ -166,6 +180,32 @@ export const CreateCourseScreen = ({ navigation }: any) => {
         </View>
       </Modal>
 
+      {/* Select Picker Modal */}
+      <Modal visible={!!selectModal} animationType="fade" transparent>
+        <TouchableOpacity style={styles.modalBg} onPress={() => setSelectModal(null)} activeOpacity={1}>
+          <View style={[styles.modalContent, { maxHeight: '60%' }]}>
+            <Text style={styles.modalTitle}>Select {selectModal === 'category' ? 'Category' : 'Difficulty'}</Text>
+            <ScrollView>
+              {(selectModal === 'category' ? CATEGORIES : DIFFICULTIES).map(opt => (
+                <TouchableOpacity
+                  key={opt}
+                  style={styles.selectOption}
+                  onPress={() => {
+                    handleChange(selectModal as string, opt);
+                    setSelectModal(null);
+                  }}
+                >
+                  <Text style={[styles.selectOptionText, formData[selectModal as string] === opt && { color: colors.primary, fontWeight: '700' }]}>
+                    {opt}
+                  </Text>
+                  {formData[selectModal as string] === opt && <Ionicons name="checkmark" size={20} color={colors.primary} />}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
     </SafeAreaView>
   );
 };
@@ -204,4 +244,6 @@ const styles = StyleSheet.create({
   modalTitle: { fontSize: 18, fontWeight: '700', color: theme.text, marginBottom: 16 },
   modalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 16, marginTop: 8 },
   modalBtn: { padding: 8 },
+  selectOption: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border },
+  selectOptionText: { fontSize: 15, color: theme.text, textTransform: 'capitalize' },
 });

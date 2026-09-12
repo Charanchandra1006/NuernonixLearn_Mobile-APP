@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  SafeAreaView, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform
+  SafeAreaView, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, Modal
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme, colors } from '../theme/colors';
@@ -13,6 +13,10 @@ export const CreateExamScreen = ({ navigation }: any) => {
     title: "", description: "", category: "Programming", difficulty: "medium",
     timeLimit: "30", passingScore: "70", maxAttempts: "3", questions: [] as any[]
   });
+  const [selectModal, setSelectModal] = useState<'category' | 'difficulty' | null>(null);
+
+  const CATEGORIES = ['Programming', 'Data Science', 'Web Development', 'Machine Learning', 'Mathematics', 'Science'];
+  const DIFFICULTIES = ['easy', 'medium', 'hard'];
 
   const handleChange = (field: string, value: any) => setFormData(p => ({ ...p, [field]: value }));
 
@@ -82,6 +86,15 @@ export const CreateExamScreen = ({ navigation }: any) => {
           <Text style={styles.sectionTitle}>BASIC INFORMATION</Text>
           <TextInput style={styles.input} placeholder="Exam Title *" placeholderTextColor={theme.textSecondary} value={formData.title} onChangeText={v => handleChange('title', v)} />
           <TextInput style={[styles.input, { height: 80, textAlignVertical: 'top' }]} placeholder="Description" multiline placeholderTextColor={theme.textSecondary} value={formData.description} onChangeText={v => handleChange('description', v)} />
+          
+          <View style={styles.row}>
+            <TouchableOpacity style={[styles.input, { flex: 1, marginRight: 12, justifyContent: 'center' }]} onPress={() => setSelectModal('category')}>
+              <Text style={{ color: formData.category ? theme.text : theme.textSecondary }}>{formData.category || 'Category *'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.input, { flex: 1, justifyContent: 'center' }]} onPress={() => setSelectModal('difficulty')}>
+              <Text style={{ color: formData.difficulty ? theme.text : theme.textSecondary, textTransform: 'capitalize' }}>{formData.difficulty || 'Difficulty *'}</Text>
+            </TouchableOpacity>
+          </View>
 
           <View style={styles.row}>
             <View style={styles.inputWrap}>
@@ -142,6 +155,33 @@ export const CreateExamScreen = ({ navigation }: any) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Select Picker Modal */}
+      <Modal visible={!!selectModal} animationType="fade" transparent>
+        <TouchableOpacity style={styles.modalBg} onPress={() => setSelectModal(null)} activeOpacity={1}>
+          <View style={[styles.modalContent, { maxHeight: '60%' }]}>
+            <Text style={styles.modalTitle}>Select {selectModal === 'category' ? 'Category' : 'Difficulty'}</Text>
+            <ScrollView>
+              {(selectModal === 'category' ? CATEGORIES : DIFFICULTIES).map(opt => (
+                <TouchableOpacity
+                  key={opt}
+                  style={styles.selectOption}
+                  onPress={() => {
+                    handleChange(selectModal as string, opt);
+                    setSelectModal(null);
+                  }}
+                >
+                  <Text style={[styles.selectOptionText, formData[selectModal as string] === opt && { color: colors.primary, fontWeight: '700' }]}>
+                    {opt}
+                  </Text>
+                  {formData[selectModal as string] === opt && <Ionicons name="checkmark" size={20} color={colors.primary} />}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
     </SafeAreaView>
   );
 };
@@ -169,5 +209,10 @@ const styles = StyleSheet.create({
   addBtnText: { color: colors.primary, fontWeight: '600' },
   actions: { marginTop: 32, alignItems: 'flex-end' },
   pubBtn: { paddingHorizontal: 24, paddingVertical: 14, borderRadius: 8, backgroundColor: colors.primary },
-  pubText: { color: '#000', fontWeight: '700' }
+  pubText: { color: '#000', fontWeight: '700' },
+  modalBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', padding: 16 },
+  modalContent: { backgroundColor: theme.surface, borderRadius: 12, padding: 20, borderWidth: 1, borderColor: theme.border },
+  modalTitle: { fontSize: 18, fontWeight: '700', color: theme.text, marginBottom: 16 },
+  selectOption: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border },
+  selectOptionText: { fontSize: 15, color: theme.text, textTransform: 'capitalize' },
 });

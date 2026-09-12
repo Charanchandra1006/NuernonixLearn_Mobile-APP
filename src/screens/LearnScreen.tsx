@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { NueronixButton } from '../components/NueronixButton';
 import { NueronixCard } from '../components/NueronixCard';
 import { theme, colors } from '../theme/colors';
-import { learningAPI } from '../services/api';
+import { learningAPI, mlAPI } from '../services/api';
 
 export const LearnScreen = ({ navigation, route }: any) => {
   const { courseId } = route.params;
@@ -41,6 +41,15 @@ export const LearnScreen = ({ navigation, route }: any) => {
     const timeSpent = Math.round((Date.now() - startTimeRef.current) / 1000);
     try {
       await learningAPI.updateProgress({ courseId, moduleId: module._id, completed: true, timeSpent });
+      // update cognitive load
+      await mlAPI.updateCognitiveLoad({
+        courseId,
+        metrics: {
+          timeSpent,
+          attempts: submitting ? 2 : 1, // rough proxy
+          score: result?.correct ? 1 : 0
+        }
+      });
     } catch { /* silent */ }
     loadModule();
   };

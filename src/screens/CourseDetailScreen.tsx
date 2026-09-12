@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  SafeAreaView, ActivityIndicator, Alert
+  SafeAreaView, ActivityIndicator, Alert, TextInput
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { NueronixButton } from '../components/NueronixButton';
@@ -25,6 +25,9 @@ export const CourseDetailScreen = ({ navigation, route }: any) => {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [loading, setLoading] = useState(!preloaded);
   const [enrolling, setEnrolling] = useState(false);
+  const [reviewText, setReviewText] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [submittingReview, setSubmittingReview] = useState(false);
 
   useEffect(() => {
     if (preloaded) {
@@ -51,6 +54,23 @@ export const CourseDetailScreen = ({ navigation, route }: any) => {
       Alert.alert('Enroll failed', err.response?.data?.error || 'Please try again.');
     } finally {
       setEnrolling(false);
+    }
+  };
+
+  const handleReview = async () => {
+    if (!reviewText.trim()) return;
+    setSubmittingReview(true);
+    try {
+      await coursesAPI.review(courseId, { rating: reviewRating, comment: reviewText });
+      setReviewText('');
+      // refresh course
+      const res = await coursesAPI.getById(courseId);
+      setCourse(res.data.course);
+      Alert.alert('Success', 'Review added!');
+    } catch (err: any) {
+      Alert.alert('Error', err.response?.data?.error || 'Failed to submit review');
+    } finally {
+      setSubmittingReview(false);
     }
   };
 
@@ -149,6 +169,61 @@ export const CourseDetailScreen = ({ navigation, route }: any) => {
               </View>
             </View>
           ))}
+
+          {/* Reviews section */}
+          <Text style={[styles.sectionTitle, { marginTop: 16 }]}>Reviews ({course.reviews?.length || 0})</Text>
+          
+          {isEnrolled && (
+            <View style={styles.reviewForm}>
+              <Text style={styles.reviewFormTitle}>Leave a Review</Text>
+              <View style={styles.ratingSelect}>
+                {[1, 2, 3, 4, 5].map(r => (
+                  <TouchableOpacity key={r} onPress={() => setReviewRating(r)}>
+                    <Ionicons name={r <= reviewRating ? "star" : "star-outline"} size={24} color="#ffb74d" />
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <TextInput
+                style={styles.reviewInput}
+                placeholder="What did you think of this course?"
+                placeholderTextColor={theme.textSecondary}
+                value={reviewText}
+                onChangeText={setReviewText}
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+              <NueronixButton
+                title={submittingReview ? "Submitting..." : "Submit Review"}
+                onPress={handleReview}
+                disabled={!reviewText.trim() || submittingReview}
+              />
+            </View>
+          )}
+
+          {course.reviews && course.reviews.length > 0 ? (
+            course.reviews.map((rev: any, i: number) => (
+              <View key={i} style={styles.reviewCard}>
+                <View style={styles.reviewHeader}>
+                  <View style={styles.reviewerAvatar}>
+                    <Text style={styles.reviewerInitial}>{rev.user?.name?.charAt(0) || 'U'}</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.reviewerName}>{rev.user?.name || 'User'}</Text>
+                    <View style={styles.starsRow}>
+                      {[1, 2, 3, 4, 5].map(r => (
+                        <Ionicons key={r} name={r <= rev.rating ? "star" : "star-outline"} size={12} color="#ffb74d" />
+                      ))}
+                    </View>
+                  </View>
+                  <Text style={styles.reviewDate}>{new Date(rev.createdAt || Date.now()).toLocaleDateString()}</Text>
+                </View>
+                <Text style={styles.reviewComment}>{rev.comment}</Text>
+              </View>
+            ))
+          ) : (
+            <Text style={styles.noReviews}>No reviews yet.</Text>
+          )}
         </View>
       </ScrollView>
 
@@ -228,4 +303,17 @@ const styles = StyleSheet.create({
     padding: 16, backgroundColor: '#000',
     borderTopWidth: 1, borderTopColor: theme.border,
   },
+  reviewForm: { backgroundColor: theme.surface, padding: 16, borderRadius: 12, borderWidth: 1, borderColor: theme.border, marginBottom: 20 },
+  reviewFormTitle: { fontSize: 14, fontWeight: '600', color: theme.text, marginBottom: 12 },
+  ratingSelect: { flexDirection: 'row', gap: 8, marginBottom: 12 },
+  reviewInput: { backgroundColor: '#111', borderWidth: 1, borderColor: theme.border, borderRadius: 8, padding: 12, color: theme.text, fontSize: 14, marginBottom: 12 },
+  reviewCard: { backgroundColor: theme.surface, padding: 16, borderRadius: 12, borderWidth: 1, borderColor: theme.border, marginBottom: 12 },
+  reviewHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  reviewerAvatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: `${colors.primary}22`, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
+  reviewerInitial: { color: colors.primary, fontWeight: '700', fontSize: 14 },
+  reviewerName: { fontSize: 14, fontWeight: '600', color: theme.text },
+  starsRow: { flexDirection: 'row', marginTop: 2, gap: 2 },
+  reviewDate: { fontSize: 11, color: theme.textSecondary },
+  reviewComment: { fontSize: 14, color: theme.textSecondary, lineHeight: 20 },
+  noReviews: { color: theme.textSecondary, fontStyle: 'italic', marginTop: 8, marginBottom: 20 },
 });
