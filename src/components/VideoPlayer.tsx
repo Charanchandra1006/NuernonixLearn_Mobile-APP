@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme/colors';
 
 // Note: In a real implementation, you would use expo-av:
-// import { Video, ResizeMode } from 'expo-av';
+import { Video, ResizeMode } from 'expo-av';
 
 interface VideoPlayerProps {
   url: string;
@@ -16,10 +16,7 @@ export const VideoPlayer = ({ url, title, duration }: VideoPlayerProps) => {
   return (
     <View style={styles.container}>
       <View style={styles.videoPlaceholder}>
-        <Ionicons name="play-circle" size={64} color={theme.textSecondary} />
-        <Text style={styles.placeholderText}>Video Player Ready</Text>
-        <Text style={styles.urlText} numberOfLines={1}>{url}</Text>
-        {/* <Video source={{ uri: url }} useNativeControls resizeMode={ResizeMode.CONTAIN} style={styles.video} /> */}
+        <Video source={{ uri: url }} useNativeControls resizeMode={ResizeMode.CONTAIN} style={styles.video} />
       </View>
       
       {(title || duration) && (
@@ -74,5 +71,9 @@ const styles = StyleSheet.create({
   duration: {
     fontSize: 12,
     color: theme.textSecondary,
+  },
+  video: {
+    width: '100%',
+    height: '100%',
   },
 });
