@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 import { authAPI } from '../services/api';
 
 interface User {
@@ -85,9 +86,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ token });
       const res = await authAPI.getMe();
       set({ user: res.data.user, isAuthenticated: true, isLoading: false });
-    } catch {
+    } catch (error) {
       await AsyncStorage.removeItem('token');
       set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+      Alert.alert('Session Expired', 'Your session has expired. Please log in again.');
     }
   },
 
