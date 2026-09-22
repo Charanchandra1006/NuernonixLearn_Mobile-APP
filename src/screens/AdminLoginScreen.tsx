@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, TextInput, KeyboardAvoidingView, Platform,
   SafeAreaView, Alert
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { NueronixCard } from '../components/NueronixCard';
 import { NueronixButton } from '../components/NueronixButton';
@@ -24,6 +25,11 @@ export const AdminLoginScreen = ({ navigation }: any) => {
       // For mobile, we just set the admin user to the main auth store
       // The API response contains token and admin object
       // We simulate merging into the main store
+      
+      if (res.data.token) {
+        await AsyncStorage.setItem('adminToken', res.data.token);
+      }
+      
       updateUser({
         _id: res.data.admin._id,
         name: res.data.admin.username,
