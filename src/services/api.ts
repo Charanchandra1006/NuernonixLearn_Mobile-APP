@@ -1,5 +1,5 @@
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 // ─── Base URL ─────────────────────────────────────────────────────────────────
 // In development use the local backend (10.0.2.2 is localhost for Android Emulator)
@@ -14,7 +14,7 @@ const api = axios.create({
 
 // ─── Request interceptor: attach Bearer token ─────────────────────────────────
 api.interceptors.request.use(async (config) => {
-  const token = await AsyncStorage.getItem('token') || await AsyncStorage.getItem('adminToken');
+  const token = (await SecureStore.getItemAsync('token')) || (await SecureStore.getItemAsync('adminToken'));
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -42,24 +42,26 @@ api.interceptors.response.use(
       }
       originalRequest._retry = true;
       isRefreshing = true;
-      const token = await AsyncStorage.getItem('token');
+      const token = await SecureStore.getItemAsync('token');
       if (token) {
         try {
           const res = await axios.post(`${BASE_URL}/auth/refresh`, {}, { timeout: 15000 });
           const newToken = res.data.token;
-          await AsyncStorage.setItem('token', newToken);
+          await SecureStore.setItemAsync('token', newToken);
           processQueue(null);
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return api(originalRequest);
         } catch (refreshError) {
           processQueue(refreshError);
-          await AsyncStorage.multiRemove(['token', 'adminToken']);
+          await SecureStore.deleteItemAsync('token');
+          await SecureStore.deleteItemAsync('adminToken');
           return Promise.reject(refreshError);
         } finally {
           isRefreshing = false;
         }
       } else {
-        await AsyncStorage.multiRemove(['token', 'adminToken']);
+        await SecureStore.deleteItemAsync('token');
+        await SecureStore.deleteItemAsync('adminToken');
       }
     }
     return Promise.reject(error);

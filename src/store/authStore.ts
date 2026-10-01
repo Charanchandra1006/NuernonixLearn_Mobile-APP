@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { Alert } from 'react-native';
 import { authAPI } from '../services/api';
 
@@ -60,25 +60,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   login: async (email, password) => {
     const res = await authAPI.login(email, password);
     const { token, user } = res.data;
-    await AsyncStorage.setItem('token', token);
+    await SecureStore.setItemAsync('token', token);
     set({ token, user, isAuthenticated: true });
   },
 
   register: async (name, email, password, role = 'student', phone, learningPace, experienceLevel, subjects) => {
     const res = await authAPI.register({ name, email, password, role, phone, learningPace: learningPace as any, experienceLevel: experienceLevel as any, subjects });
     const { token, user } = res.data;
-    await AsyncStorage.setItem('token', token);
+    await SecureStore.setItemAsync('token', token);
     set({ token, user, isAuthenticated: true });
   },
 
   logout: async () => {
-    await AsyncStorage.multiRemove(['token', 'adminToken']);
+    await SecureStore.deleteItemAsync('token');
+    await SecureStore.deleteItemAsync('adminToken');
     set({ user: null, token: null, isAuthenticated: false });
   },
 
   loadUser: async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await SecureStore.getItemAsync('token');
       if (!token) {
         set({ isLoading: false });
         return;
@@ -87,7 +88,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const res = await authAPI.getMe();
       set({ user: res.data.user, isAuthenticated: true, isLoading: false });
     } catch (error) {
-      await AsyncStorage.removeItem('token');
+      await SecureStore.deleteItemAsync('token');
       set({ user: null, token: null, isAuthenticated: false, isLoading: false });
       Alert.alert('Session Expired', 'Your session has expired. Please log in again.');
     }

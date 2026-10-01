@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, TextInput, KeyboardAvoidingView, Platform,
   SafeAreaView, Alert
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { Ionicons } from '@expo/vector-icons';
 import { NueronixCard } from '../components/NueronixCard';
 import { NueronixButton } from '../components/NueronixButton';
@@ -27,7 +27,7 @@ export const AdminLoginScreen = ({ navigation }: any) => {
       // We simulate merging into the main store
       
       if (res.data.token) {
-        await AsyncStorage.setItem('adminToken', res.data.token);
+        await SecureStore.setItemAsync('adminToken', res.data.token);
       }
       
       updateUser({

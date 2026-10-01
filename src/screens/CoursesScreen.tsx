@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import {
   View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity,
   SafeAreaView, ActivityIndicator, ScrollView
@@ -16,7 +17,7 @@ const DIFF_COLORS: Record<string, string> = {
   advanced: '#e57373',
 };
 
-const CourseCard = ({ course, onPress }: { course: any; onPress: () => void }) => (
+const CourseCard = React.memo(({ course, onPress }: { course: any; onPress: () => void }) => (
   <TouchableOpacity style={styles.courseCard} onPress={onPress} activeOpacity={0.85}>
     {/* Thumbnail placeholder with first letter */}
     <View style={styles.courseThumbnail}>
@@ -49,59 +50,68 @@ const CourseCard = ({ course, onPress }: { course: any; onPress: () => void }) =
       </TouchableOpacity>
     </View>
   </TouchableOpacity>
-);
+));
 
 export const CoursesScreen = ({ navigation }: any) => {
-  const [courses, setCourses] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [difficulty, setDifficulty] = useState('');
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [featured, setFeatured] = useState<any[]>([]);
-  const [loadingFeatured, setLoadingFeatured] = useState(true);
 
-  const fetchCourses = useCallback(async (reset = false) => {
-    const pg = reset ? 1 : page;
-    if (reset) { setLoading(true); setPage(1); }
-    else setLoadingMore(true);
-    try {
+  const { data: featuredData } = useQuery({
+    queryKey: ['featuredCourses'],
+    queryFn: async () => {
+      const res = await coursesAPI.getFeatured();
+      return res.data.courses || [];
+    },
+  });
+  const featured = featuredData || [];
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage: loadingMore,
+    isLoading: loading,
+  } = useInfiniteQuery({
+    queryKey: ['courses', search, category, difficulty],
+    queryFn: async ({ pageParam = 1 }) => {
       const res = await coursesAPI.getAll({
         search: search || undefined,
         category: category || undefined,
         difficulty: difficulty || undefined,
-        page: pg,
+        page: pageParam as number,
       });
-      const newCourses = res.data.courses || [];
-      if (reset) setCourses(newCourses);
-      else setCourses(prev => [...prev, ...newCourses]);
-      setTotalPages(res.data.pagination?.pages || 1);
-    } catch { /* silent */ } finally {
-      setLoading(false);
-      setLoadingMore(false);
+      return res.data;
+    },
+    getNextPageParam: (lastPage, pages) => {
+      if (pages.length < (lastPage.pagination?.pages || 1)) {
+        return pages.length + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 1,
+  });
+
+  const courses = data?.pages.flatMap(page => page.courses) || [];
+
+  const handleLoadMore = useCallback(() => {
+    if (hasNextPage && !loadingMore) {
+      fetchNextPage();
     }
-  }, [search, category, difficulty, page]);
+  }, [hasNextPage, loadingMore, fetchNextPage]);
 
-  useEffect(() => {
-    fetchCourses(true);
-    coursesAPI.getFeatured().then(res => {
-      setFeatured(res.data.courses || []);
-    }).catch(() => {}).finally(() => setLoadingFeatured(false));
-  }, [search, category, difficulty]);
+  const clearFilters = useCallback(() => {
+    setSearch('');
+    setCategory('');
+    setDifficulty('');
+  }, []);
 
-  const handleLoadMore = () => {
-    if (page < totalPages && !loadingMore) {
-      setPage(p => p + 1);
-    }
-  };
-
-  useEffect(() => {
-    if (page > 1) fetchCourses(false);
-  }, [page]);
-
-  const clearFilters = () => { setSearch(''); setCategory(''); setDifficulty(''); setPage(1); };
+  const renderCourse = useCallback(({ item }: any) => (
+    <CourseCard
+      course={item}
+      onPress={() => navigation.navigate('CourseDetail', { courseId: item._id, course: item })}
+    />
+  ), [navigation]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -122,7 +132,7 @@ export const CoursesScreen = ({ navigation }: any) => {
           placeholder="Search courses..."
           placeholderTextColor={theme.textSecondary}
           value={search}
-          onChangeText={v => { setSearch(v); setPage(1); }}
+          onChangeText={v => { setSearch(v); }}
         />
         {!!search && (
           <TouchableOpacity onPress={() => setSearch('')}>
@@ -137,7 +147,7 @@ export const CoursesScreen = ({ navigation }: any) => {
           <TouchableOpacity
             key={c}
             style={[styles.filterChip, (c === 'All' ? !category : category === c) && styles.filterChipActive]}
-            onPress={() => { setCategory(c === 'All' ? '' : c); setPage(1); }}
+            onPress={() => { setCategory(c === 'All' ? '' : c); }}
             activeOpacity={0.8}
           >
             <Text style={[styles.filterChipText, (c === 'All' ? !category : category === c) && styles.filterChipTextActive]}>{c}</Text>
@@ -151,7 +161,7 @@ export const CoursesScreen = ({ navigation }: any) => {
           <TouchableOpacity
             key={d}
             style={[styles.diffChip, (d === 'All' ? !difficulty : difficulty === d) && styles.diffChipActive]}
-            onPress={() => { setDifficulty(d === 'All' ? '' : d); setPage(1); }}
+            onPress={() => { setDifficulty(d === 'All' ? '' : d); }}
             activeOpacity={0.8}
           >
             <Text style={[styles.diffChipText, (d === 'All' ? !difficulty : difficulty === d) && styles.diffChipTextActive]}>
@@ -212,12 +222,7 @@ export const CoursesScreen = ({ navigation }: any) => {
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={loadingMore ? <ActivityIndicator color={colors.primary} style={{ marginVertical: 16 }} /> : null}
-          renderItem={({ item }) => (
-            <CourseCard
-              course={item}
-              onPress={() => navigation.navigate('CourseDetail', { courseId: item._id, course: item })}
-            />
-          )}
+          renderItem={renderCourse}
         />
       )}
     </SafeAreaView>
