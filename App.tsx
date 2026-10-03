@@ -33,6 +33,9 @@ import { AdminLoginScreen } from './src/screens/AdminLoginScreen';
 import { AdminPanelScreen } from './src/screens/AdminPanelScreen';
 import { theme, colors } from './src/theme/colors';
 import { useAuthStore } from './src/store/authStore';
+import * as Notifications from 'expo-notifications';
+import { registerForPushNotificationsAsync } from './src/services/notificationService';
+import { authAPI } from './src/services/api';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -124,7 +127,33 @@ export default function App() {
 
   React.useEffect(() => {
     loadUser();
-  }, []);
+
+    let notificationListener: Notifications.Subscription;
+    let responseListener: Notifications.Subscription;
+
+    const setupNotifications = async () => {
+      if (isAuthenticated) {
+        const token = await registerForPushNotificationsAsync();
+        if (token) {
+          authAPI.updatePushToken(token).catch(console.error);
+        }
+      }
+    };
+    setupNotifications();
+
+    notificationListener = Notifications.addNotificationReceivedListener(notification => {
+      console.log('Notification received in foreground:', notification);
+    });
+
+    responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('User interacted with notification:', response);
+    });
+
+    return () => {
+      if (notificationListener) Notifications.removeNotificationSubscription(notificationListener);
+      if (responseListener) Notifications.removeNotificationSubscription(responseListener);
+    };
+  }, [isAuthenticated]);
 
   const navTheme = {
     ...DarkTheme,

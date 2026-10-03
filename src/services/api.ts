@@ -88,6 +88,7 @@ export const authAPI = {
   sendLoginOTP: (email: string) => api.post('/auth/send-login-otp', { email }),
   verifyOTPLogin: (email: string, otp: string) => api.post('/auth/verify-otp-login', { email, otp }),
   updatePhone: (phone: string) => api.put('/auth/phone', { phone }),
+  updatePushToken: (token: string) => api.put('/auth/push-token', { token }),
 };
 
 // ─── Courses ──────────────────────────────────────────────────────────────────
