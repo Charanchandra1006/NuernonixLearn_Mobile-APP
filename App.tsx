@@ -39,6 +39,7 @@ import { authAPI } from './src/services/api';
 import { NetworkStatus } from './src/components/NetworkStatus';
 import { SubscriptionScreen } from './src/screens/SubscriptionScreen';
 import { initRevenueCat } from './src/services/revenueCatService';
+import * as Updates from 'expo-updates';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -129,6 +130,22 @@ export default function App() {
   const { isLoading, isAuthenticated, user, loadUser } = useAuthStore();
 
   React.useEffect(() => {
+    // OTA Update Check
+    async function onFetchUpdateAsync() {
+      try {
+        const update = await Updates.checkForUpdateAsync();
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          await Updates.reloadAsync();
+        }
+      } catch (error) {
+        console.log(`Error fetching latest Expo update: ${error}`);
+      }
+    }
+    if (!__DEV__) {
+      onFetchUpdateAsync();
+    }
+
     loadUser().then((loadedUser) => {
       // Initialize RevenueCat with the loaded user ID (if authenticated)
       if (loadedUser && loadedUser._id) {
