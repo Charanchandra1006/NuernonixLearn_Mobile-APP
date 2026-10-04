@@ -36,6 +36,7 @@ import { useAuthStore } from './src/store/authStore';
 import * as Notifications from 'expo-notifications';
 import { registerForPushNotificationsAsync } from './src/services/notificationService';
 import { authAPI } from './src/services/api';
+import { NetworkStatus } from './src/components/NetworkStatus';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -181,6 +182,7 @@ export default function App() {
   return (
     <PersistQueryClientProvider client={queryClient} persistOptions={{ persister: asyncStoragePersister }}>
       <StatusBar style="light" />
+      <NetworkStatus />
       <NavigationContainer theme={navTheme}>
         <Stack.Navigator
           initialRouteName={getInitialRoute()}
