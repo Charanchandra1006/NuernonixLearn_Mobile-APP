@@ -37,6 +37,8 @@ import * as Notifications from 'expo-notifications';
 import { registerForPushNotificationsAsync } from './src/services/notificationService';
 import { authAPI } from './src/services/api';
 import { NetworkStatus } from './src/components/NetworkStatus';
+import { SubscriptionScreen } from './src/screens/SubscriptionScreen';
+import { initRevenueCat } from './src/services/revenueCatService';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -127,7 +129,14 @@ export default function App() {
   const { isLoading, isAuthenticated, user, loadUser } = useAuthStore();
 
   React.useEffect(() => {
-    loadUser();
+    loadUser().then((loadedUser) => {
+      // Initialize RevenueCat with the loaded user ID (if authenticated)
+      if (loadedUser && loadedUser._id) {
+        initRevenueCat(loadedUser._id);
+      } else {
+        initRevenueCat();
+      }
+    });
 
     let notificationListener: Notifications.Subscription;
     let responseListener: Notifications.Subscription;
@@ -208,6 +217,7 @@ export default function App() {
           <Stack.Screen name="CreateCourse" component={CreateCourseScreen} />
           <Stack.Screen name="CreateExam" component={CreateExamScreen} />
           
+          <Stack.Screen name="Subscription" component={SubscriptionScreen} />
           <Stack.Screen name="AdminPanel" component={AdminPanelScreen} />
         </Stack.Navigator>
       </NavigationContainer>

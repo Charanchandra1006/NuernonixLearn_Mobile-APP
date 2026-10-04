@@ -8,9 +8,12 @@ import { NueronixCard } from '../components/NueronixCard';
 import { NueronixButton } from '../components/NueronixButton';
 import { theme, colors } from '../theme/colors';
 import { authAPI, analyticsAPI } from '../services/api';
+import { authAPI, analyticsAPI } from '../services/api';
 import { useAuthStore } from '../store/authStore';
+import { useNavigation } from '@react-navigation/native';
 
 export const ProfileScreen = () => {
+  const navigation = useNavigation<any>();
   const { user, updateUser } = useAuthStore();
   const [stats, setStats] = useState<any>(null);
   const [statsLoading, setStatsLoading] = useState(true);
@@ -63,6 +66,14 @@ export const ProfileScreen = () => {
             <View style={[styles.roleBadge, { backgroundColor: `${rc}18`, borderColor: `${rc}44` }]}>
               <Text style={[styles.roleText, { color: rc }]}>{user?.role}</Text>
             </View>
+
+            <TouchableOpacity 
+              style={styles.premiumBadge}
+              onPress={() => navigation.navigate('Subscription')}
+            >
+              <Ionicons name="star" size={16} color="#ffb74d" />
+              <Text style={styles.premiumText}>Upgrade to Premium</Text>
+            </TouchableOpacity>
           </NueronixCard>
 
           {/* Stats */}
@@ -173,8 +184,10 @@ const styles = StyleSheet.create({
   avatarText: { fontSize: 40, fontWeight: '700' },
   nameText: { fontSize: 20, fontWeight: '700', color: theme.text, marginBottom: 4 },
   emailText: { fontSize: 14, color: theme.textSecondary, marginBottom: 12 },
-  roleBadge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 6, borderWidth: 1 },
+  roleBadge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 6, borderWidth: 1, marginBottom: 12 },
   roleText: { fontSize: 12, fontWeight: '600', textTransform: 'capitalize' },
+  premiumBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#33230a', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#ffb74d55', gap: 6 },
+  premiumText: { color: '#ffb74d', fontWeight: '700', fontSize: 13 },
   sectionCard: { padding: 16, marginBottom: 16 },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 },
   sectionTitle: { fontSize: 13, fontWeight: '700', letterSpacing: 1 },
