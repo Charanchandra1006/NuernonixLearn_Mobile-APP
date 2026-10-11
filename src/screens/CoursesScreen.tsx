@@ -200,7 +200,7 @@ export const CoursesScreen = ({ navigation }: any) => {
               <View style={{ marginBottom: 24 }}>
                 <Text style={styles.featuredTitle}>Featured Courses</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
-                  {featured.map(course => (
+                  {featured.map((course: any) => (
                     <TouchableOpacity key={course._id} style={styles.featuredCard} onPress={() => navigation.navigate('CourseDetail', { courseId: course._id, course })} activeOpacity={0.85}>
                       <View style={styles.featuredThumb}>
                         <Text style={styles.courseLetter}>{course.title?.charAt(0) || 'C'}</Text>

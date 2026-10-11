@@ -129,8 +129,8 @@ const asyncStoragePersister = createAsyncStoragePersister({
 export default function App() {
   const { isLoading, isAuthenticated, user, loadUser } = useAuthStore();
 
+  // Run one-time app initialization (OTA update check and stored user restoration)
   React.useEffect(() => {
-    // OTA Update Check
     async function onFetchUpdateAsync() {
       try {
         const update = await Updates.checkForUpdateAsync();
@@ -147,40 +147,40 @@ export default function App() {
     }
 
     loadUser().then((loadedUser) => {
-      // Initialize RevenueCat with the loaded user ID (if authenticated)
       if (loadedUser && loadedUser._id) {
         initRevenueCat(loadedUser._id);
       } else {
         initRevenueCat();
       }
     });
+  }, []);
 
-    let notificationListener: Notifications.Subscription;
-    let responseListener: Notifications.Subscription;
-
-    const setupNotifications = async () => {
-      if (isAuthenticated) {
-        const token = await registerForPushNotificationsAsync();
+  // React to authentication state changes for push notifications and subscription sync
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      registerForPushNotificationsAsync().then((token) => {
         if (token) {
           authAPI.updatePushToken(token).catch(console.error);
         }
+      });
+      if (user?._id) {
+        initRevenueCat(user._id);
       }
-    };
-    setupNotifications();
+    }
 
-    notificationListener = Notifications.addNotificationReceivedListener(notification => {
+    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
       console.log('Notification received in foreground:', notification);
     });
 
-    responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
       console.log('User interacted with notification:', response);
     });
 
     return () => {
-      if (notificationListener) Notifications.removeNotificationSubscription(notificationListener);
-      if (responseListener) Notifications.removeNotificationSubscription(responseListener);
+      Notifications.removeNotificationSubscription(notificationListener);
+      Notifications.removeNotificationSubscription(responseListener);
     };
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user?._id]);
 
   const navTheme = {
     ...DarkTheme,
