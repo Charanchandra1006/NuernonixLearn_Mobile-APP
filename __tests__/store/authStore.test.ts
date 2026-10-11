@@ -42,4 +42,26 @@ describe('Auth Store', () => {
     expect(state.token).toBeNull();
     expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('token');
   });
+
+  it('should loadUser and return the user object when token exists', async () => {
+    const mockUser = { _id: 'u1', name: 'Learner' };
+    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue('token-abc');
+    (authAPI.getMe as jest.Mock).mockResolvedValue({ data: { user: mockUser } });
+
+    const result = await useAuthStore.getState().loadUser();
+
+    expect(result).toEqual(mockUser);
+    expect(useAuthStore.getState().isAuthenticated).toBe(true);
+    expect(useAuthStore.getState().user).toEqual(mockUser);
+  });
+
+  it('should not delete token on network failure during loadUser', async () => {
+    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue('token-abc');
+    (authAPI.getMe as jest.Mock).mockRejectedValue(new Error('Network error'));
+
+    const result = await useAuthStore.getState().loadUser();
+
+    expect(result).toBeNull();
+    expect(SecureStore.deleteItemAsync).not.toHaveBeenCalledWith('token');
+  });
 });

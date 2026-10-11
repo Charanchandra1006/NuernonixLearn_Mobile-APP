@@ -46,7 +46,7 @@ interface AuthState {
     phone?: string, learningPace?: string, experienceLevel?: string, subjects?: string[]
   ) => Promise<void>;
   logout: () => Promise<void>;
-  loadUser: () => Promise<void>;
+  loadUser: () => Promise<User | null>;
   updateUser: (data: Partial<User>) => void;
   completeOnboarding: (data: any) => Promise<void>;
 }
@@ -82,15 +82,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const token = await SecureStore.getItemAsync('token');
       if (!token) {
         set({ isLoading: false });
-        return;
+        return null;
       }
       set({ token });
       const res = await authAPI.getMe();
-      set({ user: res.data.user, isAuthenticated: true, isLoading: false });
-    } catch (error) {
-      await SecureStore.deleteItemAsync('token');
-      set({ user: null, token: null, isAuthenticated: false, isLoading: false });
-      Alert.alert('Session Expired', 'Your session has expired. Please log in again.');
+      const user = res.data.user;
+      set({ user, isAuthenticated: true, isLoading: false });
+      return user;
+    } catch (error: any) {
+      if (error?.response?.status === 401) {
+        await SecureStore.deleteItemAsync('token');
+        set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+        Alert.alert('Session Expired', 'Your session has expired. Please log in again.');
+      } else {
+        // Network / server offline error: keep token so subsequent retries or offline mode work
+        set({ isLoading: false });
+      }
+      return null;
     }
   },
 
