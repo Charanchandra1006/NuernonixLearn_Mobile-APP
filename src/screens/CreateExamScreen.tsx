@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  SafeAreaView, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, Modal
+  SafeAreaView, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, Modal, Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme, colors } from '../theme/colors';
@@ -47,12 +47,12 @@ export const CreateExamScreen = ({ navigation }: any) => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.title) return alert("Title is required");
-    if (formData.questions.length === 0) return alert("Add at least one question");
+    if (!formData.title) return Alert.alert("Notice", "Title is required");
+    if (formData.questions.length === 0) return Alert.alert("Notice", "Add at least one question");
 
     for (let i = 0; i < formData.questions.length; i++) {
       const q = formData.questions[i];
-      if (!q.text || !q.correctAnswer) return alert(`Question ${i + 1} is missing text or answer`);
+      if (!q.text || !q.correctAnswer) return Alert.alert("Notice", `Question ${i + 1} is missing text or answer`);
     }
 
     setLoading(true);
@@ -68,7 +68,7 @@ export const CreateExamScreen = ({ navigation }: any) => {
         }))
       });
       navigation.goBack();
-    } catch (err: any) { alert(err.response?.data?.error || "Failed"); }
+    } catch (err: any) { Alert.alert("Error", err.response?.data?.error || "Failed to create exam"); }
     finally { setLoading(false); }
   };
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  SafeAreaView, ActivityIndicator, TextInput, Modal, KeyboardAvoidingView, Platform, FlatList
+  SafeAreaView, ActivityIndicator, TextInput, Modal, KeyboardAvoidingView, Platform, FlatList, Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { NueronixCard } from '../components/NueronixCard';
@@ -85,7 +85,7 @@ export const DiaryScreen = ({ navigation }: any) => {
       setAuthMode('unlock');
       setUnlockError('');
       setPassword('');
-      alert('Password created! Enter it now to unlock.');
+      Alert.alert('Success', 'Password created! Enter it now to unlock.');
     } catch (err: any) {
       setUnlockError(err.response?.data?.error || 'Failed to set password');
     }

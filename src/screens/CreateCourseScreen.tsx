@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  SafeAreaView, ActivityIndicator, TextInput, Switch, Modal
+  SafeAreaView, ActivityIndicator, TextInput, Switch, Modal, Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme, colors } from '../theme/colors';
@@ -62,7 +62,7 @@ export const CreateCourseScreen = ({ navigation }: any) => {
   };
 
   const handleSubmit = async (publish: boolean) => {
-    if (!formData.title || !formData.description) return alert("Fill required fields");
+    if (!formData.title || !formData.description) return Alert.alert("Notice", "Fill required fields");
     setLoading(true);
     try {
       await coursesAPI.create({
@@ -74,7 +74,7 @@ export const CreateCourseScreen = ({ navigation }: any) => {
         isPublished: publish
       });
       navigation.goBack();
-    } catch (err: any) { alert(err.response?.data?.error || "Failed"); }
+    } catch (err: any) { Alert.alert("Error", err.response?.data?.error || "Failed to create course"); }
     finally { setLoading(false); }
   };
 
