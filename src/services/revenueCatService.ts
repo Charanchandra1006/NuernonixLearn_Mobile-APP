@@ -1,5 +1,6 @@
 import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 import { Platform } from 'react-native';
+import { isRunningInExpoGo } from 'expo';
 
 const API_KEYS = {
   apple: 'appl_YOUR_REVENUECAT_APPLE_KEY',
@@ -7,6 +8,10 @@ const API_KEYS = {
 };
 
 export const initRevenueCat = async (userId?: string) => {
+  if (isRunningInExpoGo()) {
+    console.log('Running in Expo Go: Purchases/RevenueCat is skipped');
+    return;
+  }
   try {
     Purchases.setLogLevel(LOG_LEVEL.DEBUG);
 

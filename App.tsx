@@ -33,8 +33,11 @@ import { AdminLoginScreen } from './src/screens/AdminLoginScreen';
 import { AdminPanelScreen } from './src/screens/AdminPanelScreen';
 import { theme, colors } from './src/theme/colors';
 import { useAuthStore } from './src/store/authStore';
-import * as Notifications from 'expo-notifications';
-import { registerForPushNotificationsAsync } from './src/services/notificationService';
+import {
+  registerForPushNotificationsAsync,
+  addNotificationReceivedListener,
+  addNotificationResponseReceivedListener,
+} from './src/services/notificationService';
 import { authAPI } from './src/services/api';
 import { NetworkStatus } from './src/components/NetworkStatus';
 import { SubscriptionScreen } from './src/screens/SubscriptionScreen';
@@ -168,11 +171,11 @@ export default function App() {
       }
     }
 
-    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
+    const notificationListener = addNotificationReceivedListener(notification => {
       console.log('Notification received in foreground:', notification);
     });
 
-    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+    const responseListener = addNotificationResponseReceivedListener(response => {
       console.log('User interacted with notification:', response);
     });
 
