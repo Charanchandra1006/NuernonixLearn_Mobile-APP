@@ -114,6 +114,51 @@ export const LoginScreen = ({ navigation }: any) => {
               loading={loading}
               style={styles.signInBtn}
             />
+
+            {/* Quick Demo Access Divider */}
+            <View style={styles.dividerRow}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>OR QUICK DEMO</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <View style={styles.demoBtnRow}>
+              <TouchableOpacity
+                style={styles.demoBtn}
+                onPress={async () => {
+                  setEmail('student@nueronixlearn.com');
+                  setPassword('password123');
+                  setLoading(true);
+                  try {
+                    await login('student@nueronixlearn.com', 'password123');
+                    navigation.replace('StudentApp');
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+              >
+                <Ionicons name="school-outline" size={16} color={colors.primary} />
+                <Text style={styles.demoBtnText}>Student Demo</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.demoBtn}
+                onPress={async () => {
+                  setEmail('teacher@nueronixlearn.com');
+                  setPassword('password123');
+                  setLoading(true);
+                  try {
+                    await login('teacher@nueronixlearn.com', 'password123');
+                    navigation.replace('TeacherApp');
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+              >
+                <Ionicons name="person-outline" size={16} color="#64B5F6" />
+                <Text style={[styles.demoBtnText, { color: '#64B5F6' }]}>Teacher Demo</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Register link */}
@@ -178,4 +223,43 @@ const styles = StyleSheet.create({
   },
   registerText: { color: theme.textSecondary, fontSize: 15 },
   registerLink: { color: colors.primary, fontWeight: '600', fontSize: 15 },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 18,
+    gap: 12,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#222',
+  },
+  dividerText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#666',
+    letterSpacing: 0.8,
+  },
+  demoBtnRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  demoBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    backgroundColor: '#141414',
+    borderWidth: 1,
+    borderColor: '#262626',
+  },
+  demoBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.primary,
+  },
 });
