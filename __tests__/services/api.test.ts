@@ -1,4 +1,5 @@
 import api, { authAPI } from '../../src/services/api';
+import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import * as SecureStore from 'expo-secure-store';
 
@@ -6,13 +7,16 @@ jest.mock('expo-secure-store');
 
 describe('API Services', () => {
   let mock: MockAdapter;
+  let axiosMock: MockAdapter;
 
   beforeAll(() => {
     mock = new MockAdapter(api);
+    axiosMock = new MockAdapter(axios);
   });
 
   afterEach(() => {
     mock.reset();
+    axiosMock.reset();
   });
 
   it('should add Authorization header if token exists', async () => {
@@ -32,7 +36,7 @@ describe('API Services', () => {
     mock.onGet('/auth/me').replyOnce(401);
     
     // Refresh succeeds
-    mock.onPost(`${process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:5050/api'}/auth/refresh`).replyOnce(200, { token: 'new-token' });
+    axiosMock.onPost(`${process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:5050/api'}/auth/refresh`).replyOnce(200, { token: 'new-token' });
     
     // Second request succeeds
     mock.onGet('/auth/me').replyOnce(200, { user: { name: 'Refreshed' } });

@@ -1,10 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet } from 'react-native';
 import { theme } from '../theme/colors';
-
-// Note: In a real implementation, you would use expo-av:
-import { Video, ResizeMode } from 'expo-av';
+import { useVideoPlayer, VideoView } from 'expo-video';
 
 interface VideoPlayerProps {
   url: string;
@@ -13,10 +10,19 @@ interface VideoPlayerProps {
 }
 
 export const VideoPlayer = ({ url, title, duration }: VideoPlayerProps) => {
+  const player = useVideoPlayer(url, p => {
+    p.loop = false;
+  });
+
   return (
     <View style={styles.container}>
       <View style={styles.videoPlaceholder}>
-        <Video source={{ uri: url }} useNativeControls resizeMode={ResizeMode.CONTAIN} style={styles.video} />
+        <VideoView
+          style={styles.video}
+          player={player}
+          nativeControls={true}
+          allowsPictureInPicture
+        />
       </View>
       
       {(title || duration) && (

@@ -177,8 +177,8 @@ export default function App() {
     });
 
     return () => {
-      Notifications.removeNotificationSubscription(notificationListener);
-      Notifications.removeNotificationSubscription(responseListener);
+      notificationListener.remove();
+      responseListener.remove();
     };
   }, [isAuthenticated, user?._id]);
 
